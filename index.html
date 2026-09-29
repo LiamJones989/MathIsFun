@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prank</title>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+    }
+
+    #start {
+      position: fixed;
+      z-index: 9999;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 40px;
+      font-size: 24px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .box {
+      position: absolute;
+      width: 160px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      border-radius: 10px;
+      user-select: none;
+    }
+
+    #stop {
+      position: fixed;
+      z-index: 10000;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      display: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<button id="start">CLICK ME</button>
+<button id="stop">STOP PRANK</button>
+
+<script>
+let audioContext;
+let oscillator;
+let gainNode;
+let running = false;
+
+const startButton = document.getElementById("start");
+const stopButton = document.getElementById("stop");
+
+startButton.addEventListener("click", () => {
+  if (running) return;
+
+  running = true;
+
+  startButton.style.display = "none";
+  stopButton.style.display = "block";
+
+  // Start high-pitched tone
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  oscillator = audioContext.createOscillator();
+  gainNode = audioContext.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.value = 1200;
+
+  gainNode.gain.value = 0.04;
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.start();
+
+  // Create moving prank boxes
+  for (let i = 0; i < 30; i++) {
+    createBox(i + 1);
+  }
+
+  moveBoxes();
+});
+
+function createBox(number) {
+  const box = document.createElement("div");
+
+  box.className = "box";
+  box.textContent = `PRANK ${number}`;
+
+  box.style.background =
+    "#" + Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, "0");
+
+  box.style.left = Math.random() * (window.innerWidth - 160) + "px";
+  box.style.top = Math.random() * (window.innerHeight - 100) + "px";
+
+  document.body.appendChild(box);
+}
+
+function moveBoxes() {
+  if (!running) return;
+
+  document.querySelectorAll(".box").forEach(box => {
+    const x = Math.random() * (window.innerWidth - 160);
+    const y = Math.random() * (window.innerHeight - 100);
+
+    box.style.transition = "all 0.15s linear";
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+  });
+
+  setTimeout(moveBoxes, 150);
+}
+
+stopButton.addEventListener("click", () => {
+  running = false;
+
+  if (oscillator) {
+    oscillator.stop();
+    oscillator.disconnect();
+  }
+
+  if (audioContext) {
+    audioContext.close();
+  }
+
+  document.querySelectorAll(".box").forEach(box => box.remove());
+
+  stopButton.style.display = "none";
+  startButton.style.display = "block";
+});
+</script>
+
+</body>
+</html>
