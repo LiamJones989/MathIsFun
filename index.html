@@ -1,154 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prank</title>
-
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      text-align: center;
-    }
-
-    #start {
-      position: fixed;
-      z-index: 9999;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      padding: 20px 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border: none;
-      border-radius: 10px;
-    }
-
-    .box {
-      position: absolute;
-      width: 160px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: white;
-      border-radius: 10px;
-      user-select: none;
-    }
-
-    #stop {
-      position: fixed;
-      z-index: 10000;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      display: none;
-      cursor: pointer;
-    }
-  </style>
+    <title>Prank</title>
 </head>
 
 <body>
 
-<button id="start">CLICK ME</button>
-<button id="stop">STOP PRANK</button>
-
 <script>
-let audioContext;
-let oscillator;
-let gainNode;
-let running = false;
+const TOTAL = 150;
+let opened = 0;
 
-const startButton = document.getElementById("start");
-const stopButton = document.getElementById("stop");
+function startPrank() {
+    function openNext() {
+        if (opened >= TOTAL) {
+            return;
+        }
 
-startButton.addEventListener("click", () => {
-  if (running) return;
+        const width = 300;
+        const height = 200;
 
-  running = true;
+        const left = Math.random() * (screen.width - width);
+        const top = Math.random() * (screen.height - height);
 
-  startButton.style.display = "none";
-  stopButton.style.display = "block";
+        const popup = window.open(
+            "",
+            "_blank",
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
 
-  // Start high-pitched tone
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (!popup) {
+            document.body.innerHTML = `
+                <h1>Pop-ups are blocked</h1>
+                <p>Allow pop-ups for this site and reload the page.</p>
+            `;
+            return;
+        }
 
-  oscillator = audioContext.createOscillator();
-  gainNode = audioContext.createGain();
+        popup.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>MathIsFun ${opened + 1}</title>
+            </head>
 
-  oscillator.type = "sine";
-  oscillator.frequency.value = 1200;
+            <body style="
+                margin:0;
+                background:#${Math.floor(
+                    Math.random() * 16777215
+                ).toString(16).padStart(6, "0")};
+                color:white;
+                font-family:Arial;
+                text-align:center;
+            ">
 
-  gainNode.gain.value = 0.04;
+                <h1>PRANK ${opened + 1}</h1>
 
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
+            </body>
+            </html>
+        `);
 
-  oscillator.start();
+        popup.document.close();
 
-  // Create moving prank boxes
-  for (let i = 0; i < 30; i++) {
-    createBox(i + 1);
-  }
+        opened++;
 
-  moveBoxes();
-});
+        setTimeout(openNext, 100);
+    }
 
-function createBox(number) {
-  const box = document.createElement("div");
-
-  box.className = "box";
-  box.textContent = `PRANK ${number}`;
-
-  box.style.background =
-    "#" + Math.floor(Math.random() * 16777215)
-      .toString(16)
-      .padStart(6, "0");
-
-  box.style.left = Math.random() * (window.innerWidth - 160) + "px";
-  box.style.top = Math.random() * (window.innerHeight - 100) + "px";
-
-  document.body.appendChild(box);
+    openNext();
 }
 
-function moveBoxes() {
-  if (!running) return;
-
-  document.querySelectorAll(".box").forEach(box => {
-    const x = Math.random() * (window.innerWidth - 160);
-    const y = Math.random() * (window.innerHeight - 100);
-
-    box.style.transition = "all 0.15s linear";
-    box.style.left = x + "px";
-    box.style.top = y + "px";
-  });
-
-  setTimeout(moveBoxes, 150);
-}
-
-stopButton.addEventListener("click", () => {
-  running = false;
-
-  if (oscillator) {
-    oscillator.stop();
-    oscillator.disconnect();
-  }
-
-  if (audioContext) {
-    audioContext.close();
-  }
-
-  document.querySelectorAll(".box").forEach(box => box.remove());
-
-  stopButton.style.display = "none";
-  startButton.style.display = "block";
-});
+// Automatically attempt to start when the page loads
+window.addEventListener("load", startPrank);
 </script>
 
 </body>
