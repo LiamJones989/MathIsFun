@@ -61,14 +61,13 @@ function startPrank() {
                 <script>
                     function chaos() {
                         try {
-                            // Random size
+
                             const newWidth =
                                 Math.floor(Math.random() * 500) + 100;
 
                             const newHeight =
                                 Math.floor(Math.random() * 400) + 80;
 
-                            // Random position
                             const maxX =
                                 Math.max(0, screen.availWidth - newWidth);
 
@@ -93,7 +92,6 @@ function startPrank() {
                         }
                     }
 
-                    // VERY fast movement and resizing
                     setInterval(chaos, 40);
                 <\/script>
 
@@ -105,7 +103,7 @@ function startPrank() {
 
         opened++;
 
-        // Rapidly create the next popup
+        // Rapid popup creation
         setTimeout(openNext, 75);
     }
 
